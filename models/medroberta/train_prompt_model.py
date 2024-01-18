@@ -17,8 +17,9 @@ tokenizer = AutoTokenizer.from_pretrained("CLTL/MedRoBERTa.nl")
 # Load dataset
 dataset = load_dataset('json', data_files='datasets/HealthCareMagic-100k/HealthCareMagic100k_translated_nl.json')
 
+
 # Split the dataset into train and test
-train_dataset, test_dataset = train_test_split(dataset['train'], test_size=0.2)
+train_dataset, test_dataset = dataset.train_test_split(test_size=0.1)
 
 # Preprocess and map for both train and test datasets
 train_dataset = train_dataset.map(preprocess_function, batched=True)
@@ -33,7 +34,7 @@ trainer = Trainer(
 # Train the model
 trainer.train()
 
-# After training, you can generate responses like this:
+# Generate sample response
 prompt = "Your prompt text here"
 inputs = tokenizer.encode(prompt, return_tensors="pt")
 outputs = model.generate(inputs, max_length=150, num_return_sequences=3)
