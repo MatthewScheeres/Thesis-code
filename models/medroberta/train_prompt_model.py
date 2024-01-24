@@ -37,6 +37,11 @@ model = AutoModelForCausalLM.from_pretrained(model_type)
 tokenizer = AutoTokenizer.from_pretrained(model_type)
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
+    
+from transformers import DataCollatorForLanguageModeling
+
+tokenizer.pad_token = tokenizer.eos_token
+data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 # Load and map dataset
 dataset = Dataset.from_generator(gen)
@@ -49,13 +54,19 @@ train_dataset, test_dataset = dataset['train'], dataset['test']
 
 # Define training arguments and instantiate Trainer
 metric = evaluate.load("accuracy")
-training_args = TrainingArguments(output_dir="test-trainer", evaluation_strategy="epoch")
+training_args = TrainingArguments(
+    output_dir="test-trainer", 
+    evaluation_strategy="epoch",
+    per_device_train_batch_size=16,
+    per_device_eval_batch_size=64,
+)
 trainer = Trainer(
     model=model, 
     args=training_args, 
     train_dataset=train_dataset, 
     eval_dataset=test_dataset,
     compute_metrics=compute_metrics,
+    data_collator=data_collator,
 )
 
 # Train the model
