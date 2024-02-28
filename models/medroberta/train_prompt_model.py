@@ -76,6 +76,8 @@ training_args = TrainingArguments(
     save_strategy='epoch',
     save_steps=500,
     load_best_model_at_end=True,
+    gradient_checkpointing=True,
+    fp16=True,
 )
 trainer = Trainer(
     model=model, 
