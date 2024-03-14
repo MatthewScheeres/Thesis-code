@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
+from transformers import RobertaTokenizerFast, RobertaForSequenceClassification, Trainer, TrainingArguments
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -16,9 +16,9 @@ df = df[['DEDUCE_omschrijving', 'labels']]
 
 train_texts, test_texts, train_labels, test_labels = train_test_split(df['DEDUCE_omschrijving'].tolist(), df['labels'].tolist(), test_size=0.2)
 
-
-tokenizer = AutoTokenizer.from_pretrained("Rijgersberg/GEITje-7B", use_fast=False)
-model = AutoModelForSequenceClassification.from_pretrained("Rijgersberg/GEITje-7B", num_labels=3)
+# Load the pre-trained model and tokenizer
+tokenizer = RobertaTokenizerFast.from_pretrained("pdelobelle/robbert-v2-dutch-base")
+model = RobertaForSequenceClassification.from_pretrained("pdelobelle/robbert-v2-dutch-base", num_labels=3)
 
 # Tokenize the dataset
 train_encodings = tokenizer(train_texts, truncation=True, padding=True)

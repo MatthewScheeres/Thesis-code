@@ -1,11 +1,17 @@
-from transformers import RobertaTokenizerFast, RobertaForSequenceClassification, Trainer, TrainingArguments
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, Trainer, TrainingArguments
 import pandas as pd
 from sklearn.model_selection import train_test_split
-
-
+import torch
 
 from utils import compute_metrics, SymptomDataset
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print("Device: ", device)
+
+if torch.cuda.is_available():
+    print("GPU Type: ", torch.cuda.get_device_name())
+
+print("CUDA Version: ", torch.version.cuda)
 
 # Load the dataset
 df = pd.read_csv('C:\\Users\\matth\\OneDrive\\Documenten\\UU MSc Artificial Intelligence\\Thesis\\Thesis-code\\data\\raw\\patient_data\\example_dataset.csv')
@@ -16,9 +22,9 @@ df = df[['DEDUCE_omschrijving', 'labels']]
 
 train_texts, test_texts, train_labels, test_labels = train_test_split(df['DEDUCE_omschrijving'].tolist(), df['labels'].tolist(), test_size=0.2)
 
-# Load the pre-trained model and tokenizer
-tokenizer = RobertaTokenizerFast.from_pretrained("pdelobelle/robbert-v2-dutch-base")
-model = RobertaForSequenceClassification.from_pretrained("pdelobelle/robbert-v2-dutch-base", num_labels=3)
+
+tokenizer = AutoTokenizer.from_pretrained("Rijgersberg/GEITje-7B", use_fast=False)
+model = AutoModelForSequenceClassification.from_pretrained("Rijgersberg/GEITje-7B", num_labels=3).to(device)
 
 # Tokenize the dataset
 train_encodings = tokenizer(train_texts, truncation=True, padding=True)
