@@ -14,12 +14,12 @@ if torch.cuda.is_available():
 print("CUDA Version: ", torch.version.cuda)
 
 # Load dataset
-def gen() -> dict:
+def gen():
     '''
     Read the json file at path and yield each line.
     '''
     print("Loading dataset...")
-    with open('datasets/HealthCareMagic-100k/HealthCareMagic100k_translated_nl_sample.json', 'r', encoding='utf-8') as f:
+    with open('data/raw/HealthCareMagic-100k/HealthCareMagic100k_translated_nl_sample mini.json', 'r', encoding='utf-8') as f:
         for line in f:
             line = json.loads(line)
             yield {"context": line["system_prompt"], "prompt": line["question_text"], "output": line["orig_answer_texts"]}
@@ -38,7 +38,8 @@ def preprocess_function(example):
 def compute_metrics(eval_pred):
     print("Computing metrics...")
     logits, labels = eval_pred
-    predictions = np.argmax(logits, axis=-1)
+    predictions = np.argmax(logits, axis=-1).flatten()
+    print(np.shape(predictions), np.shape(labels))
     return metric.compute(predictions=predictions, references=labels)
 
 
@@ -78,7 +79,9 @@ training_args = TrainingArguments(
     load_best_model_at_end=True,
     gradient_checkpointing=True,
     fp16=True,
+    gradient_accumulation_steps=4,
 )
+
 trainer = Trainer(
     model=model, 
     args=training_args, 
@@ -90,7 +93,9 @@ trainer = Trainer(
 
 # Train the model
 print("Training the model...")
-trainer.train()
+trainer.train(
+    resume_from_checkpoint=False,
+)
 
 print("Saving the model...")
 trainer.save_model("models/medroberta")
