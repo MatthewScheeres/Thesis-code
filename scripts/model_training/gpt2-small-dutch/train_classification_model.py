@@ -11,7 +11,6 @@ from utils import compute_metrics, SymptomDataset
 df = pd.read_csv('C:\\Users\\matth\\OneDrive\\Documenten\\UU MSc Artificial Intelligence\\Thesis\\Thesis-code\\data\\raw\\patient_data\\example_dataset.csv')
 
 # Preprocess the dataset
-df['labels'] = df['Koorts'].apply(lambda x: [0 if i=='0' else 1 if i=='1' else 2 for i in x])
 df = df[['DEDUCE_omschrijving', 'labels']]
 
 train_texts, test_texts, train_labels, test_labels = train_test_split(df['DEDUCE_omschrijving'].tolist(), df['labels'].tolist(), test_size=0.2)
