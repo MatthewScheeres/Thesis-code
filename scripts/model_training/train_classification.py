@@ -136,24 +136,45 @@ class ModelTrainer:
 
         return eval_results
     
-    def train_classification(
-            self,
-    ) -> dict:
+    def train_classification(self, use_crossval: bool=False) -> dict:
+        """Train a classification model on the given dataset len(sample_sizes) times and return the evaluation results for each sample size.
+
+        Args:
+            use_crossval (bool, optional): Whether or not to use 5-fold cross-validation. As the test fold is always kept the same, sample sizes should be divisible by 4 when applying cross-validation. Defaults to False.
+
+        Returns:
+            dict: _description_
+        """
         if torch.cuda.is_available():
             print(f"GPU found, using {torch.cuda.get_device_name()} for training.")
+        
+        # Check if sample_sizes are divisible by 4 when using cross-validation
+        if use_crossval and any([sample_size % 4 != 0 for sample_size in self.sample_sizes]):
+            raise ValueError("Sample sizes should be divisible by 4 when using cross-validation.")
         
         for sample_size in self.sample_sizes:
             print(f"Training model for sample size {sample_size}...")
             training_set = self.limit_dataset_size(sample_size)
-            self.training_results[sample_size] = self.train_classification_model(training_set)
+            if use_crossval:
+                # Implement k-fold cross-validation
+                training_subset_results = []
+                for i in range(4):
+                    training_subset = training_set[i::4]
+                    training_subset_results.append(self.train_classification_model(training_subset))
+                self.training_results[sample_size] = training_subset_results
+                
+            else:
+                self.training_results[sample_size] = self.train_classification_model(training_set)
         
         return self.training_results
 
         
 
 def main():
+    # Settings
     model_type = 'robbert'
     symptom = 'Koorts'
+    sample_sizes = [100, 200, 300, 400, 500, 600, 700, 800,]
 
     # Load the datasets
     train_set = pd.read_csv('data/raw/patient_data/fake_train.csv')
@@ -168,10 +189,10 @@ def main():
     test_labels = test_set['labels'].tolist()
 
     # Train the model
-    trainer = ModelTrainer(model_type, symptom, [100, 200, 300, 400, 500])
+    trainer = ModelTrainer(model_type, symptom, sample_sizes)
     trainer.preprocess_dataset(train_texts, test_texts, train_labels, test_labels)
 
-    results = trainer.train_classification()
+    results = trainer.train_classification(use_crossval=True)
 
     # Save the results to a file
     with open(f'results/{model_type}_{symptom}_results.json', 'w') as f:
