@@ -1,5 +1,6 @@
 *.pt
 *.safetensors
+test-trainer/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
