@@ -1,5 +1,5 @@
-from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments, AutoModelForSeq2SeqLM 
-from transformers import DataCollatorForLanguageModeling, DataCollatorForSeq2Seq, Seq2SeqTrainingArguments, Seq2SeqTrainer
+from transformers import AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments, Seq2SeqTrainingArguments, Seq2SeqTrainer
+from transformers import DataCollatorForLanguageModeling, DataCollatorForSeq2Seq, AutoModelForQuestionAnswering
 from datasets import Dataset
 import json
 import evaluate
@@ -50,14 +50,14 @@ def compute_metrics(eval_pred):
 # Load pre-trained model and tokenizer
 print("Loading pre-trained model and tokenizer...")
 model_type = "CLTL/MedRoBERTa.nl"
-model = AutoModelForSeq2SeqLM.from_pretrained(model_type).to(device)
+model = AutoModelForQuestionAnswering.from_pretrained(model_type).to(device)
 tokenizer = AutoTokenizer.from_pretrained(model_type)
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
     
 
 tokenizer.pad_token = tokenizer.eos_token
-data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer)
+data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 # Load and map dataset
 print("Mapping dataset...")
@@ -73,7 +73,7 @@ print("Train dataset: ", train_dataset)
 # Define training arguments and instantiate Trainer
 print("Defining training arguments and instantiating Trainer...")
 metric = evaluate.load("accuracy")
-training_args = Seq2SeqTrainingArguments(
+training_args = TrainingArguments(
     output_dir="test-trainer", 
     evaluation_strategy="epoch",
     eval_accumulation_steps=20,
@@ -85,10 +85,9 @@ training_args = Seq2SeqTrainingArguments(
     gradient_checkpointing=True,
     fp16=True,
     gradient_accumulation_steps=4,
-    label_smoothing_factor=0.1,
 )
 
-trainer = Seq2SeqTrainer(
+trainer = Trainer(
     model=model, 
     args=training_args, 
     train_dataset=train_dataset, 
