@@ -47,13 +47,11 @@ def compute_metrics(eval_pred):
 
 # Load pre-trained model and tokenizer
 print("Loading pre-trained model and tokenizer...")
-encoder = "CLTL/MedRoBERTa.nl"
-decoder = "yhavinga/ul2-base-dutch"
-
-model = EncoderDecoderModel.from_encoder_decoder_pretrained(encoder, decoder).to(device)
+model_name = "GroNLP/gpt2-small-dutch"
+model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
 
 
-tokenizer = AutoTokenizer.from_pretrained(encoder)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
     
