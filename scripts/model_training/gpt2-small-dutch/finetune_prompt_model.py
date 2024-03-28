@@ -47,11 +47,13 @@ def compute_metrics(eval_pred):
 
 # Load pre-trained model and tokenizer
 print("Loading pre-trained model and tokenizer...")
-model_name = "GroNLP/gpt2-small-dutch"
-model = AutoModelForCausalLM.from_pretrained(model_name).to(device)
+encoder = "GroNLP/gpt2-small-dutch"
+decoder = "GroNLP/gpt2-small-dutch"
+
+model = EncoderDecoderModel.from_encoder_decoder_pretrained(encoder, decoder).to(device)
 
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(encoder)
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
     
@@ -83,7 +85,7 @@ training_args = Seq2SeqTrainingArguments(
     save_steps=500,
     load_best_model_at_end=True,
     gradient_checkpointing=True,
-    fp16=True,
+    fp16=False, # was true,
     gradient_accumulation_steps=4,
     label_smoothing_factor=0.1,
 )
