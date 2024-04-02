@@ -35,6 +35,7 @@ def preprocess_function(example):
     model_inputs = tokenizer(text, truncation=True, padding="max_length", max_length=512)
     input_ids = tokenizer(target, truncation=True, padding="max_length", max_length=512)["input_ids"]
     model_inputs["labels"] = input_ids
+    model_inputs["decoder_input_ids"] = input_ids
     return model_inputs
 
 
@@ -48,9 +49,9 @@ def compute_metrics(eval_pred):
 # Load pre-trained model and tokenizer
 print("Loading pre-trained model and tokenizer...")
 encoder = "CLTL/MedRoBERTa.nl"
-decoder = "yhavinga/ul2-base-dutch"
+decoder = "google-bert/bert-base-uncased"
 
-model = EncoderDecoderModel.from_encoder_decoder_pretrained(encoder, decoder).to(device)
+model = EncoderDecoderModel.from_encoder_decoder_pretrained(encoder, decoder)
 
 
 tokenizer = AutoTokenizer.from_pretrained(encoder)
@@ -85,7 +86,7 @@ training_args = Seq2SeqTrainingArguments(
     save_steps=500,
     load_best_model_at_end=True,
     gradient_checkpointing=True,
-    fp16=True,
+    fp16=False, # Can only use this with CUDA
     gradient_accumulation_steps=4,
     label_smoothing_factor=0.1,
 )
@@ -112,7 +113,7 @@ trainer.save_model("models/medroberta")
 # Generate sample response
 print("Generating sample response...")
 prompt = "Hallo dokter, ik heb last van een zere keel en koorts. Wat moet ik doen?"
-inputs = tokenizer.encode(prompt, return_tensors="pt").to(device)
+inputs = tokenizer.encode(prompt, return_tensors="pt")
 outputs = model.generate(
     inputs, 
     max_length=150, 
