@@ -39,8 +39,23 @@ Als '{symptom}' helemaal niet wordt vermeld in de tekst, label het als 'Niet ver
     
     def classify(self, text: str, examples: Union[list[tuple], None]) -> str:
         self.prepare_prompt(text['DEDUCE_omschrijving'], examples)
+        
+        #TODO Add check to split longer prompts appropriately
+        
         conversation = Conversation(self.prompt)
         return self.model(conversation)
+    
+def run_crossvalidation(symptom: str, shot_amount: int = 0) -> str:
+    """Runs prompt-based crossvalidation on a given symptom. 
+
+    Args:
+        symptom (str): One of Koorts, Hoesten or Kortademigheid.
+        shot_amount (int): The amount of samples to provide the LLM with. Defaults to 0.
+
+    Returns:
+        str: Path to the evaluation results JSON file.
+    """
+    
 
 def main():
     # Load the dataset
