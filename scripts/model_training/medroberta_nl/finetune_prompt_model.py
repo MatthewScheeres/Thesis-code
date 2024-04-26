@@ -7,13 +7,8 @@ import evaluate
 import numpy as np
 import torch
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print("Device: ", device)
 
-if torch.cuda.is_available():
-    print("GPU Type: ", torch.cuda.get_device_name())
 
-print("CUDA Version: ", torch.version.cuda)
 
 # Load dataset
 def gen():
@@ -35,6 +30,7 @@ def preprocess_function(example):
     model_inputs = tokenizer(text, truncation=True, padding="max_length", max_length=512)
     input_ids = tokenizer(target, truncation=True, padding="max_length", max_length=512)["input_ids"]
     model_inputs["labels"] = input_ids
+    model_inputs["encoder_input_ids"] = input_ids
     model_inputs["decoder_input_ids"] = input_ids
     return model_inputs
 
@@ -86,7 +82,7 @@ training_args = Seq2SeqTrainingArguments(
     save_steps=500,
     load_best_model_at_end=True,
     gradient_checkpointing=True,
-    fp16=False, # Can only use this with CUDA
+    fp16=True, # Can only use this with CUDA
     gradient_accumulation_steps=4,
     label_smoothing_factor=0.1,
 )
