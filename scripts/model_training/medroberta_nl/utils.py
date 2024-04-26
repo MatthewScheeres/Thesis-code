@@ -22,10 +22,11 @@ def compute_metrics(pred):
     precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='weighted')
     acc = accuracy_score(labels, preds)
     conf_mat = confusion_matrix(labels, preds)
-    print('Confusion Matrix:\n', conf_mat)
-    return {
+    return_dict = {
+        'confusion_matrix': str(conf_mat),
         'accuracy': acc,
         'f1': f1,
         'precision': precision,
         'recall': recall
     }
+    return return_dict
