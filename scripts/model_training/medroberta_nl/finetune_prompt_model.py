@@ -24,7 +24,6 @@ def gen():
 def preprocess_function(example):
     print("Preprocessing data...")
     text = [context + ' ' + prompt for context, prompt in zip(example['context'], example['prompt'])]
-    
     target = example['output']
 
     model_inputs = tokenizer(text, truncation=True, padding="max_length", max_length=512)
@@ -82,7 +81,7 @@ training_args = Seq2SeqTrainingArguments(
     save_steps=500,
     load_best_model_at_end=True,
     gradient_checkpointing=True,
-    fp16=True, # Can only use this with CUDA
+    fp16=False, # Can only use this with CUDA
     gradient_accumulation_steps=4,
     label_smoothing_factor=0.1,
 )
@@ -94,7 +93,6 @@ trainer = Seq2SeqTrainer(
     eval_dataset=test_dataset,
     compute_metrics=None,
     data_collator=data_collator,
-    
 )
 
 # Train the model
@@ -119,4 +117,16 @@ outputs = model.generate(
     no_repeat_ngram_size=2,
 )
 for output in outputs:
+    print(tokenizer.decode(output))
+
+# Generate output using beam search
+print("Generating sample response using beam search...")
+beam_outputs = model.generate(
+    inputs,
+    max_length=150,
+    num_beams=5,  # Number of beams for beam search
+    num_return_sequences=1,
+    do_sample=False,  # Disable sampling
+)
+for output in beam_outputs:
     print(tokenizer.decode(output))
