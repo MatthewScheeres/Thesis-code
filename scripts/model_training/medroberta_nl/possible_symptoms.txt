@@ -1,3 +1,0 @@
-Hoesten: "hoesten positief", "hoesten negatief", "hoesten afwezig"
-Koorts: "ĠKoorts positief", "ĠKoorts negatief", "ĠKoorts afwezig"
-Kortademigheid: "ĠKortademigheid positief", "ĠKortademigheid negatief", "ĠKortademigheid afwezig"
