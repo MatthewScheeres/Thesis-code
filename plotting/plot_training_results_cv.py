@@ -30,7 +30,7 @@ def main():
         plt.plot(train_epochs, train_loss, label='Train Loss')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
-    plt.title(f'Train Loss of {model_name} on {symptom}')
+    plt.title(f'Train Loss of {model_name} on {symptom} per fold')
     plt.legend()
     plt.show()
 
@@ -43,7 +43,7 @@ def main():
         plt.plot(eval_epochs, eval_loss, label='Eval Loss')
         plt.xlabel('Epoch')
         plt.ylabel('Loss')
-        plt.title(f'Eval Loss of {model_name} on {symptom}')
+        plt.title(f'Eval Loss of {model_name} on {symptom} per fold')
     plt.legend()
     plt.show()
 
