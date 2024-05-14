@@ -74,6 +74,7 @@ Als '{symptom}' niet wordt vermeld in de tekst, label het als 'afwezig'.
         pos_prob = probabilities[0, -1, pos_index].item()
         neg_prob = probabilities[0, -1, neg_index].item()
         abs_prob = probabilities[0, -1, abs_index].item()
+        print(pos_prob == neg_prob, abs_prob)   # Probabilities are all the same, something's wrong. 
 
         # Return the word with the highest probability
         max_prob = max(pos_prob, neg_prob, abs_prob)
