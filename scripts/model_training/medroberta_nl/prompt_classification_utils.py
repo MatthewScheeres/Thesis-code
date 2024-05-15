@@ -2,17 +2,17 @@ import pandas as pd
 from typing import Union
 
 symptom_dict = {
-    "hoesten": {
+    "Hoesten": {
         "pos": "hoesten positief",
         "neg": "hoesten negatief", 
         "abs": "hoesten afwezig",
     },
-    "koorts": {
+    "Koorts": {
         "pos": "ĠKoorts positief",
         "neg": "ĠKoorts negatief",
         "abs": "ĠKoorts afwezig",
     },
-    "kortademigheid": {
+    "Kortademigheid": {
         "pos": "ĠKortademigheid positief",
         "neg": "ĠKortademigheid negatief",
         "abs": "ĠKortademigheid afwezig",
@@ -22,10 +22,10 @@ symptom_dict = {
 def construct_prompt(note: str, symptom: str, examples: Union[pd.DataFrame, None] = None):
     prompt = \
         f"""
-        Classificeer de volgende teksten op basis van de aanwezigheid van het symptoom '{symptom}' als volgt:
-        Als '{symptom}' wordt vermeld als positief, label het als '{symptom_dict['symptom']['pos']}'.
-        Als '{symptom}' wordt vermeld als negatief, label het als '{symptom_dict['symptom']['neg']}'.
-        Als '{symptom}' niet wordt vermeld in de tekst, label het als '{symptom_dict['symptom']['abs']}'.
+        Classificeer de volgende teksten op basis van aanwezigheid van het symptoom '{symptom}'.
+        Word '{symptom}' vermeld als positief, antwoord '{symptom_dict[symptom]['pos']}'.
+        Word '{symptom}' wordt vermeld als negatief, antwoord '{symptom_dict[symptom]['neg']}'.
+        Word '{symptom}' niet vermeld in de tekst, antwoord '{symptom_dict[symptom]['abs']}'.
         """
         
     if examples is not None:
@@ -37,6 +37,6 @@ def construct_prompt(note: str, symptom: str, examples: Union[pd.DataFrame, None
                 label = 'positief'
             if row[symptom] == 0:
                 label = 'negatief'
-            prompt += f"Tekst: {row['DEDUCE_omschrijving']}\tLabel: {label}\n"
-    prompt += f"\nPrint exclusief het label bijbehorende aan de volgende tekst: {note}"
+            prompt += f"Tekst: '{row['DEDUCE_omschrijving']}'\tBijbehorend label: {label}\n"
+    prompt += f"Print exclusief het label bijbehorende aan de volgende tekst: '{note}'"
     return prompt
