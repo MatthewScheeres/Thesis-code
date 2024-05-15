@@ -28,7 +28,7 @@ data = {
 df = pd.DataFrame(data)
 
 # Add relevant keywords to the 'DEDUCE_omschrijving' field based on the values of the 'Koorts', 'Hoesten', and 'Kortademigheid' fields
-df['DEDUCE_omschrijving'] = df.apply(lambda row: fake.text().replace('\n', ' ') +
+df['DEDUCE_omschrijving'] = df.apply(lambda row: fake.sentence(nb_words=62).replace('\n', ' ') +
                                       (' Koorts' if row['Koorts'] == '1' else ' geen Koorts' if row['Koorts'] == '0' else '') +
                                       (' Hoesten' if row['Hoesten'] == '1' else ' geen Hoesten' if row['Hoesten'] == '0' else '') +
                                       (' Kortademigheid' if row['Kortademigheid'] == '1' else ' geen Kortademigheid' if row['Kortademigheid'] == '0' else ''), axis=1)
