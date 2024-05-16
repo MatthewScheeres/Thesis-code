@@ -22,9 +22,9 @@ class SymptomPromptModel:
 
     def classify(self, note: str, examples: Union[list[tuple], None]):
         prompt = construct_prompt(note, self.symptom, examples)
-        prob_pos = self._predict_token_probability(prompt, symptom_dict[self.symptom]["pos"], self.model, self.tokenizer)
-        prob_neg = self._predict_token_probability(prompt, symptom_dict[self.symptom]["neg"], self.model, self.tokenizer)
-        prob_abs = self._predict_token_probability(prompt, symptom_dict[self.symptom]["abs"], self.model, self.tokenizer)
+        prob_pos = self._predict_token_probability(prompt, symptom_dict[self.symptom]["pos"],)
+        prob_neg = self._predict_token_probability(prompt, symptom_dict[self.symptom]["neg"])
+        prob_abs = self._predict_token_probability(prompt, symptom_dict[self.symptom]["abs"])
         print(f"Prompt: {prompt}")
         print(f"Probabilities: pos={prob_pos}, neg={prob_neg}, abs={prob_abs}")
         print("Prompt length: ", len(prompt))
@@ -46,6 +46,17 @@ class SymptomPromptModel:
 
         # Get token id for the token
         token_id = self.tokenizer.encode(token, add_special_tokens=False)[0]
+
+        print(f"Original token: {token}, decoded token: {self.tokenizer.decode(token_id)}")
+
+        tokenized_koorts = self.tokenizer('ĠKoorts', return_tensors='pt', padding='max_length', truncation=True, max_length=512)
+        tokenized_negatief = self.tokenizer('negatief', return_tensors='pt', padding='max_length', truncation=True, max_length=512)
+
+        koorts_id = self.tokenizer.encode('ĠKoorts', add_special_tokens=False)
+        negatief_id = self.tokenizer.encode('negatief', add_special_tokens=False)
+
+        print(f"Original token: ĠKoorts, decoded token: {self.tokenizer.decode(koorts_id)}")
+        print(f"Original token: negatief, decoded token: {self.tokenizer.decode(negatief_id)}")
 
         # Pass tokenized prompt to the model
         with torch.no_grad():  # No need to calculate gradients
