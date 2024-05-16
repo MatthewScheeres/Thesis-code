@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, con
 import json
 from datetime import datetime
 import os
+from typing import Union
 
 from prompt_classification_utils import symptom_dict, construct_prompt
 
@@ -19,7 +20,7 @@ class SymptomPromptModel:
         self.symptom = symptom
 
 
-    def classify(self, note: str, examples: list):
+    def classify(self, note: str, examples: Union[list[tuple], None]):
         prompt = construct_prompt(note, self.symptom, examples)
         prob_pos = self._predict_token_probability(prompt, symptom_dict[self.symptom]["pos"], self.model, self.tokenizer)
         prob_neg = self._predict_token_probability(prompt, symptom_dict[self.symptom]["neg"], self.model, self.tokenizer)
@@ -38,7 +39,7 @@ class SymptomPromptModel:
                 print("[Warning] All probabilities are equal. Returning 'afwezig' as default label.")
             return 2    # afwezig
     
-    def _predict_token_probability(self, prompt: str, token: str, model: PreTrainedModel, tokenizer: AutoTokenizer):
+    def _predict_token_probability(self, prompt: str, token: str):
         inputs = self.tokenizer(prompt, return_tensors='pt', padding='max_length', truncation=True, max_length=512)
         
         tokenized_token = self.tokenizer(token, return_tensors='pt', padding='max_length', truncation=True, max_length=512)
